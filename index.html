@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>USB Camera Viewer</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    video {
+      width: 90%;
+      max-width: 600px;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #cccccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>USB Camera Viewer</h1>
+  <video id="video" autoplay playsinline></video>
+  <button id="startButton">Start Camera</button>
+
+  <script>
+    async function startCamera() {
+      try {
+        const videoElement = document.getElementById('video');
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('Camera API not supported in this environment.');
+          return;
+        }
+
+        // Request permission and access the default video device
+        const constraints = {
+          video: {
+            facingMode: 'environment'
+          }
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        videoElement.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        alert('Failed to access the camera. Ensure permissions are granted and the camera is connected.');
+      }
+    }
+
+    document.getElementById('startButton').addEventListener('click', async () => {
+      try {
+        // Check if permissions have already been granted
+        const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+        if (permissionStatus.state !== 'granted') {
+          alert('Camera permissions are required. Please grant camera access.');
+        }
+        await startCamera();
+      } catch (error) {
+        console.error('Permission error:', error);
+        alert('Error checking camera permissions.');
+      }
+    });
+  </script>
+</body>
+</html>
